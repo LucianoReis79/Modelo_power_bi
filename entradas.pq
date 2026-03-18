@@ -1,0 +1,45 @@
+let
+    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true, Query="SELECT *#(lf)FROM AFSESAB.VW_SIGAF_REL_ENTRADA#(lf)WHERE DATA_CADASTRO >= TIMESTAMP '2018-01-01 00:00:00.000000'"]),
+    #"Linhas Filtradas4" = Table.SelectRows(Fonte, each ([STATUS_ENTRADA] = "Ativa") and ([UNIDADE] = "CEFARBA - CENTRAL FARMACÊUTICA DO ESTADO DA BAHIA")),
+    TipoAlterado = Table.TransformColumnTypes(#"Linhas Filtradas4",{{"VALOR_UNITARIO", Currency.Type}, {"QUANTIDADE", Int64.Type}, {"DATA_CADASTRO", type date}, {"DATA_RECEBIMENTO", type date}}),
+   
+    De = List.Buffer(Dicionário[De]),
+    Para = List.Buffer(Dicionário[Para]),
+    Nome_Corrigido = Table.TransformColumns(TipoAlterado, {"MEDICAMENTO", each Fn_De_Para(_, De , Para), type text}), 
+   
+   
+   
+   #"Linhas Classificadas" = Table.Sort(Nome_Corrigido,{{"DATA_CADASTRO", Order.Ascending}}),
+    #"Dividir Coluna por Transição de Caractere" = Table.SplitColumn(#"Linhas Classificadas", "NUMERO_NOTA_FISCAL", Splitter.SplitTextByCharacterTransition({"0".."9"}, (c) => not List.Contains({"0".."9"}, c)), {"NUMERO_NOTA_FISCAL.1", "NUMERO_NOTA_FISCAL.2"}),
+    #"Colunas Removidas2" = Table.RemoveColumns(#"Dividir Coluna por Transição de Caractere",{"NUMERO_NOTA_FISCAL.2"}),
+    #"Coluna Duplicada" = Table.DuplicateColumn(#"Colunas Removidas2", "NUMERO_NOTA_FISCAL.1", "NUMERO_NOTA_FISCAL.1 - Copiar"),
+    #"Colunas Reordenadas" = Table.ReorderColumns(#"Coluna Duplicada",{"UNIDADE", "DATA_CADASTRO", "DATA_RECEBIMENTO", "NUMERO_AUTORIZACAO_FORNECIMENTO", "NUMERO_NOTA_FISCAL.1", "NUMERO_NOTA_FISCAL.1 - Copiar", "MEDICAMENTO", "LOTE", "QUANTIDADE", "VALOR_UNITARIO"}),
+    #"Coluna Duplicada1" = Table.DuplicateColumn(#"Colunas Reordenadas", "NUMERO_AUTORIZACAO_FORNECIMENTO", "NUMERO_AUTORIZACAO_FORNECIMENTO - Copiar"),
+    #"Colunas Reordenadas1" = Table.ReorderColumns(#"Coluna Duplicada1",{"UNIDADE", "DATA_CADASTRO", "DATA_RECEBIMENTO", "NUMERO_AUTORIZACAO_FORNECIMENTO", "NUMERO_AUTORIZACAO_FORNECIMENTO - Copiar", "NUMERO_NOTA_FISCAL.1", "NUMERO_NOTA_FISCAL.1 - Copiar", "MEDICAMENTO", "LOTE", "QUANTIDADE", "VALOR_UNITARIO"}),
+    #"Valor Substituído" = Table.ReplaceValue(#"Colunas Reordenadas1","","Outras entradas",Replacer.ReplaceValue,{"NUMERO_AUTORIZACAO_FORNECIMENTO - Copiar"}),
+    #"Valor Substituído1" = Table.ReplaceValue(#"Valor Substituído"," CREASI","",Replacer.ReplaceText,{"NUMERO_AUTORIZACAO_FORNECIMENTO - Copiar"}),
+    #"Linhas Filtradas" = Table.SelectRows(#"Valor Substituído1", each true),
+    #"Valor Substituído2" = Table.ReplaceValue(#"Linhas Filtradas","DEVOLUÇÃO","Outras entradas",Replacer.ReplaceText,{"NUMERO_AUTORIZACAO_FORNECIMENTO - Copiar"}),
+    #"Colunas Removidas4" = Table.RemoveColumns(#"Valor Substituído2",{"NUMERO_NOTA_FISCAL.1 - Copiar"}),
+    #"Colunas Renomeadas" = Table.RenameColumns(#"Colunas Removidas4",{{"NUMERO_AUTORIZACAO_FORNECIMENTO - Copiar", "Tipo Entrada"}}),
+    #"Texto em Maiúscula" = Table.TransformColumns(#"Colunas Renomeadas",{{"NUMERO_NOTA_FISCAL.1", Text.Upper, type text}, {"NUMERO_AUTORIZACAO_FORNECIMENTO", Text.Upper, type text}}),
+    #"Valor Substituído3" = Table.ReplaceValue(#"Texto em Maiúscula",null,"vazio",Replacer.ReplaceValue,{"NUMERO_AUTORIZACAO_FORNECIMENTO"}),
+    #"Coluna Condicional Adicionada" = Table.AddColumn(#"Valor Substituído3", "Personalizar", each if Text.Contains([NUMERO_AUTORIZACAO_FORNECIMENTO], "DOAÇÃO") then "Doação" else if Text.Contains([NUMERO_AUTORIZACAO_FORNECIMENTO], "DEV") then "Devolução" else if Text.Contains([NUMERO_AUTORIZACAO_FORNECIMENTO], "STIMO") then "Empréstimo" else if Text.Contains([NUMERO_AUTORIZACAO_FORNECIMENTO], "TROCA") then "Troca" else if Text.Contains([NUMERO_AUTORIZACAO_FORNECIMENTO], "BONIFICAÇÃO") then "Bonificação" else if [NUMERO_NOTA_FISCAL.1] = "CONTAGEM INICIAL" then "Contagem Inicial" else if Text.StartsWith([NUMERO_NOTA_FISCAL.1], "DEV") then "Devolução" else if Text.Contains([NUMERO_NOTA_FISCAL.1], "EMPRES") then "Empréstimo" else if Text.Contains([NUMERO_NOTA_FISCAL.1], "DOAÇÃO") then "Doação" else if Text.Contains([NUMERO_NOTA_FISCAL.1], "PERM") then "Outras Entradas" else "Aquisição"),
+    #"Colunas Reordenadas2" = Table.ReorderColumns(#"Coluna Condicional Adicionada",{"UNIDADE", "DATA_CADASTRO", "DATA_RECEBIMENTO", "NUMERO_AUTORIZACAO_FORNECIMENTO", "Tipo Entrada", "NUMERO_NOTA_FISCAL.1", "Personalizar", "MEDICAMENTO", "LOTE", "QUANTIDADE", "VALOR_UNITARIO"}),
+    #"Linhas Filtradas1" = Table.SelectRows(#"Colunas Reordenadas2", each true),
+    #"Colunas Removidas5" = Table.RemoveColumns(#"Linhas Filtradas1",{"Tipo Entrada"}),
+    #"Colunas Renomeadas1" = Table.RenameColumns(#"Colunas Removidas5",{{"Personalizar", "Tipo de entrada"}}),
+    #"Linhas Filtradas6" = Table.SelectRows(#"Colunas Renomeadas1", each ([NOME_PROGRAMA] = "AÇÃO JUDICIAL" or [NOME_PROGRAMA] = "AÇÃO JUDICIAL TERMOLÁBIL" or [NOME_PROGRAMA] = "CAJ - ADMINISTRATIVO")),
+    #"Linhas Filtradas3" = Table.SelectRows(#"Linhas Filtradas6", each true),
+    #"Colunas Removidas3" = Table.RemoveColumns(#"Linhas Filtradas3",{"NOME_PROGRAMA"}),
+    #"Tipo Alterado" = Table.TransformColumnTypes(#"Colunas Removidas3",{{"LOTE", type text}}),
+    #"Texto Aparado" = Table.TransformColumns(#"Tipo Alterado",{{"LOTE", Text.Trim, type text}}),
+    #"Texto Limpo" = Table.TransformColumns(#"Texto Aparado",{{"LOTE", Text.Clean, type text}}),
+    #"Colunas Removidas" = Table.RemoveColumns(#"Texto Limpo",{"DATA_ESTORNO", "STATUS_ENTRADA"}),
+    #"Texto em Maiúscula1" = Table.TransformColumns(#"Colunas Removidas",{{"MEDICAMENTO", Text.Upper, type text}}),
+    #"Colunas Renomeadas2" = Table.RenameColumns(#"Texto em Maiúscula1",{{"UNIDADE", "Unidade"}, {"DATA_CADASTRO", "Data Cadastro"}, {"DATA_RECEBIMENTO", "Data Recebimento"}, {"NUMERO_AUTORIZACAO_FORNECIMENTO", "Nº Autorização de Fornecimento"}, {"NUMERO_NOTA_FISCAL.1", "Nº Nota Fiscal .1"}, {"MEDICAMENTO", "Medicamento"}, {"LOTE", "Lote"}, {"QUANTIDADE", "Quantidade"}, {"VALOR_UNITARIO", "Valor Unitário"}}),
+    #"Linhas Filtradas2" = Table.SelectRows(#"Colunas Renomeadas2", each not Text.StartsWith([NUMERO_ENTRADA], "043046325061394")),
+    #"Colunas Renomeadas3" = Table.RenameColumns(#"Linhas Filtradas2",{{"Nº Nota Fiscal .1", "NF"}, {"Data Recebimento", "Data"}, {"Tipo de entrada", "Tipo"}, {"Valor Unitário", "Valor unitário"}}),
+    #"Tipo Alterado1" = Table.TransformColumnTypes(#"Colunas Renomeadas3",{{"Tipo", type text}})
+in
+    #"Tipo Alterado1"
