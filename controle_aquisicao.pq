@@ -8,10 +8,10 @@ let
     #"Cabeçalhos Promovidos" = Table.PromoteHeaders(#"Coluna de Tabela Expandida1", [PromoteAllScalars=true]),
     #"Colunas Renomeadas1" = Table.RenameColumns(#"Cabeçalhos Promovidos",{{"Código CI ", "Código CI"}, {"Medicamento ", "Medicamento"}, {"Código Simpas ", "Código Simpas"}, {"Quantidade ", "Quantidade"}, {"Valor ", "Valor"}, {"Nº Processo ", "Nº Processo"}, {"Empenhar ", "Empenhar"}, {"Nº AFM ", "Nº AFM"}, {"Data de Convocação para Assinatura ", "Data de Convocação para Assinatura"}, {"Data Assinatura AFM ", "Data Assinatura AFM"}, {"Data Entrega AFM ", "Data Entrega AFM"}, {"Quantidade Entregue ", "Quantidade Entregue"}, {"Nº RP - Licitação ", "Nº RP - Licitação"}, {"Validade RP ", "Validade RP"}, {"Fornecedor ", "Fornecedor"}, {"Data CI ", "Data CI"}, {"Origem CI ", "Origem CI"}, {"Assunto CI ", "Assunto CI"}, {"Status CI ", "Status CI"}, {"PAOE ", "PAOE"}, {"Fonte ", "Fonte"}}),
     #"Colunas Removidas" = Table.RemoveColumns(#"Colunas Renomeadas1",{""}),
-    #"Linhas Filtradas" = Table.SelectRows(#"Colunas Removidas", each ([Origem CI] <> "Núcleo AF Básica ")),
-    #"Linhas Filtradas1" = Table.SelectRows(#"Linhas Filtradas", each Text.Contains([PAOE], "6063") or Text.Contains([PAOE], "4256") or Text.Contains([PAOE], "4255")),
+    #"Exclusão CI outras coordenações" = Table.SelectRows(#"Colunas Removidas", each ([Origem CI] = "" or [Origem CI] = "Coordenação " or [Origem CI] = "Núcleo de Atendimento MNS " or [Origem CI] = "Núcleo Planejamento MNS ")),
+    PAOE = Table.SelectRows(#"Exclusão CI outras coordenações", each Text.Contains([PAOE], "6063") or Text.Contains([PAOE], "4256") or Text.Contains([PAOE], "4255")),
     // Alteração de tipos de dados
-    TipoAlterado = Table.TransformColumnTypes(#"Linhas Filtradas1", {
+    TipoAlterado = Table.TransformColumnTypes(PAOE, {
         {"Código CI", type text}, {"Medicamento", type text}, {"Código Simpas", type any},
         {"Quantidade", type number}, {"Valor", type number}, {"Nº Processo", type text},
         {"Empenhar", type text}, {"Nº AFM", type text}, {"Data Assinatura AFM", type date},
