@@ -45,6 +45,7 @@ let
     #"Colunas Removidas1" = Table.RemoveColumns(#"Dividir Coluna por Delimitador",{"Data Primeiro Atendimento.2"}),
     #"Valor Substituído1" = Table.ReplaceValue(#"Colunas Removidas1",null,"",Replacer.ReplaceValue,{"Data Primeiro Atendimento.1"}),
     #"Tipo Alterado1" = Table.TransformColumnTypes(#"Valor Substituído1",{{"Data Primeiro Atendimento.1", type date}}),
-    #"Colunas Renomeadas1" = Table.RenameColumns(#"Tipo Alterado1",{{"Data Primeiro Atendimento.1", "Data Primeiro Atendimento"}})
+    #"Colunas Renomeadas1" = Table.RenameColumns(#"Tipo Alterado1",{{"Data Primeiro Atendimento.1", "Data Primeiro Atendimento"}}),
+    #"Tipo Alterado2" = Table.TransformColumnTypes(#"Colunas Renomeadas1",{{"Data", type date}})
 in
-    #"Colunas Renomeadas1"
+    #"Tipo Alterado2"
