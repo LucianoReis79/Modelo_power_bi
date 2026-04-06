@@ -46,6 +46,6 @@ let
     #"Valor Substituído1" = Table.ReplaceValue(#"Colunas Removidas1",null,"",Replacer.ReplaceValue,{"Data Primeiro Atendimento.1"}),
     #"Tipo Alterado1" = Table.TransformColumnTypes(#"Valor Substituído1",{{"Data Primeiro Atendimento.1", type date}}),
     #"Colunas Renomeadas1" = Table.RenameColumns(#"Tipo Alterado1",{{"Data Primeiro Atendimento.1", "Data Primeiro Atendimento"}}),
-    #"Tipo Alterado2" = Table.TransformColumnTypes(#"Colunas Renomeadas1",{{"Data", type date}})
+    #"Tipo Alterado2" = Table.TransformColumnTypes(#"Colunas Renomeadas1",{{"Data", type date}, {"Número do processo", type text}, {"Interessado", type text}, {"Tipo Ação", type text}, {"Medicamento", type text}, {"Unidade Dispensadora", type text}, {"Status", type text}, {"Quantidade Autorizada", Int64.Type}, {"Frequência (em dias)", Int64.Type}, {"Período de tratamento (em meses)", Int64.Type}, {"Data Próximo Atendimento", type datetime}, {"Período de Tratamento", type text}, {"Data Primeiro Atendimento", type date}, {"Tipo", type text}})
 in
     #"Tipo Alterado2"
