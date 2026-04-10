@@ -24,7 +24,7 @@ let
     NomeCorrigido = Table.TransformColumns(LinhasFiltradas, {"MEDICAMENTO", each Fn_De_Para(_, De, Para), type text}),
 
     // Remover colunas desnecessárias
-    ColunasRemovidas = Table.RemoveColumns(NomeCorrigido, {"UNIDADE", "FABRICANTE", "PRODUTO","PRECO_TOTAL"}),
+    ColunasRemovidas = Table.RemoveColumns(NomeCorrigido, {"UNIDADE","PRODUTO","PRECO_TOTAL"}),
 
     // Filtrar medicamentos não nulos e renomear coluna
     MedicamentoFiltrado = Table.SelectRows(ColunasRemovidas, each [MEDICAMENTO] <> null and [MEDICAMENTO] <> ""),
