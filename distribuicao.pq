@@ -1,5 +1,5 @@
 let
-    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true, Query="SELECT * FROM AFSESAB.VW_SIGAF_REL_DISTRIBUICAO#(lf)WHERE DATA_DISTRIBUICAO>= TIMESTAMP '2023-01-01 00:00:00.000000'"]),
+    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true, Query="SELECT * FROM AFSESAB.VW_SIGAF_REL_DISTRIBUICAO_D1#(lf)WHERE DATA_DISTRIBUICAO>= TIMESTAMP '2023-01-01 00:00:00.000000'"]),
     #"Tipo Alterado2" = Table.TransformColumnTypes(Fonte,{{"NUMERO_DISTRIBUICAO", type text}, {"NUMERO_PEDIDO", Int64.Type}, {"UNIDADE_ORIGEM", type text}, {"UNIDADE_DESTINO", type text}, {"DATA_DISTRIBUICAO", type date}, {"QUANTIDADE", Int64.Type}, {"VALOR_UNITARIO", type number}, {"DATA_VENCIMENTO", type date}, {"VALOR_TOTAL", type number}, {"MEDICAMENTO", type text}, {"LOTE", type text}}),
     De = List.Buffer(Dicionário[De]),
     Para = List.Buffer(Dicionário[Para]),

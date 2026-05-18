@@ -1,5 +1,5 @@
 let
-    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true, Query="SELECT *#(lf)FROM AFSESAB.VW_SIGAF_CADASTRO_CI #(lf)WHERE DATA_CI >= TIMESTAMP '2020-01-01 00:00:00.000000'"]),
+    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true, Query="SELECT *#(lf)FROM AFSESAB.VW_SIGAF_CADASTRO_CI_D1 #(lf)WHERE DATA_CI >= TIMESTAMP '2020-01-01 00:00:00.000000'"]),
     #"Tipo Alterado" = Table.TransformColumnTypes(Fonte,{{"NUMERO_CI", type text}, {"DATA_CI", type date}, {"DESTINO", type text}, {"ORIGEM_CI", type text}, {"SERVIDOR", type text}, {"ASSUNTO_CI", type text}, {"STATUS_CI", type text}, {"NUMERO_PROCESSO", type text}, {"descricao", type text} }),
     #"Duplicatas Removidas" = Table.Distinct(#"Tipo Alterado", {"NUMERO_CI"}),
     #"Texto Limpo" = Table.TransformColumns(#"Duplicatas Removidas",{{"descricao", Text.Clean, type text}}),

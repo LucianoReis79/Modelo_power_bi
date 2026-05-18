@@ -1,5 +1,5 @@
 let
-    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true, Query="SELECT *#(lf)FROM AFSESAB.VW_SIGAF_REL_ESTOQUE#(lf)WHERE DATA_VENCIMENTO >= TIMESTAMP '2025-01-01 00:00:00.000000'"]),
+    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true, Query="SELECT *#(lf)FROM AFSESAB.VW_SIGAF_REL_ESTOQUE_D1#(lf)WHERE DATA_VENCIMENTO >= TIMESTAMP '2025-01-01 00:00:00.000000'"]),
     // Alterar tipos de colunas
     TipoAlterado = Table.TransformColumnTypes(Fonte, {
         {"MEDICAMENTO", type text}, 
@@ -24,7 +24,7 @@ let
     NomeCorrigido = Table.TransformColumns(LinhasFiltradas, {"MEDICAMENTO", each Fn_De_Para(_, De, Para), type text}),
 
     // Remover colunas desnecessárias
-    ColunasRemovidas = Table.RemoveColumns(NomeCorrigido, {"UNIDADE","PRODUTO","PRECO_TOTAL"}),
+    ColunasRemovidas = Table.RemoveColumns(NomeCorrigido, {"UNIDADE", "PRODUTO","PRECO_TOTAL"}),
 
     // Filtrar medicamentos não nulos e renomear coluna
     MedicamentoFiltrado = Table.SelectRows(ColunasRemovidas, each [MEDICAMENTO] <> null and [MEDICAMENTO] <> ""),
