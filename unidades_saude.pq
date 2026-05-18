@@ -1,5 +1,5 @@
 let
-    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true]){[Schema="AFSESAB"]}[Data]{[Name="VW_SIGAF_CALAF_DETALHE"]}[Data],
+    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true]){[Schema="AFSESAB"]}[Data]{[Name="VW_SIGAF_CALAF_DETALHE_D1"]}[Data],
     #"Tipo Alterado" = Table.TransformColumnTypes(Fonte, {
         {"NUMERO_PROCESSO", type text}, 
         {"DATA_ENTRADA", type date}, 

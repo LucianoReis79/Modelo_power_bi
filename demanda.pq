@@ -1,7 +1,7 @@
 let
 
     // Carregar arquivos da pasta 
-    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true]){[Schema="AFSESAB"]}[Data]{[Name="VW_SIGAF_REL_PENDENCIAS"]}[Data], 
+    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true]){[Schema="AFSESAB"]}[Data]{[Name="VW_SIGAF_REL_PENDENCIAS_D1"]}[Data], 
 
     // Alterar tipos das colunas 
     TipoAlterado = Table.TransformColumnTypes(Fonte,{{"numero_pedido", Int64.Type}, {"numero_distribuicao", type text}, {"unidade_saude", type text}, {"programa_saude", type text}, {"data_pedido", type date}, {"data_distribuicao", type date}, {"periodo", type text}, {"medicamento_item", type text}, {"consumo_medio_mensal", Int64.Type}, {"qtd_pedida", Int64.Type}, {"qtd_autorizada", Int64.Type}, {"qtd_faturada", Int64.Type}, {"diferenca", Int64.Type}}), 

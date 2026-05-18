@@ -1,10 +1,7 @@
 let
     Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true, Query="SELECT *#(lf)FROM AFSESAB.VW_SIGAF_FATURAMENTO_US_D1#(lf)WHERE DATA_AUTORIZACAO >= TIMESTAMP '2018-01-01 00:00:00.000000'"]),
-    // Renomeia coluna
-    ColunasRenomeadas = Table.RenameColumns(Fonte, {{"NUMERO_PEDIDO", "Pedido"}}),
-    
     // Remove coluna desnecessária
-    ColunasRemovidas = Table.RemoveColumns(ColunasRenomeadas, {"ALMOXARIFADO_ORIGEM"}),
+    ColunasRemovidas = Table.RemoveColumns(Fonte, {"ALMOXARIFADO_ORIGEM"}),
 
     // Filtra linhas removendo palavras-chave indesejadas da coluna LISTA_MEDICAMENTO
     PalavrasChave = {
@@ -26,9 +23,9 @@ let
     NomeCorrigido = Table.TransformColumns(TextoLimpo, {{"MEDICAMENTO", each Fn_De_Para(_, De, Para), type text}}),
 
     // Ajustes de tipo e limpeza final
-    TipoAlterado = Table.TransformColumnTypes(NomeCorrigido, {{"Pedido", type text}, {"DATA_AGENDAMENTO", type date}}),
-    TextoPedidoAparado = Table.TransformColumns(TipoAlterado, {{"Pedido", Text.Trim, type text}}),
-    TextoPedidoLimpo = Table.TransformColumns(TextoPedidoAparado, {{"Pedido", Text.Clean, type text}}),
+    TipoAlterado = Table.TransformColumnTypes(NomeCorrigido, {{"NUMERO_PEDIDO", type text}, {"DATA_AGENDAMENTO", type date}}),
+    TextoPedidoAparado = Table.TransformColumns(TipoAlterado, {{"NUMERO_PEDIDO", Text.Trim, type text}}),
+    TextoPedidoLimpo = Table.TransformColumns(TextoPedidoAparado, {{"NUMERO_PEDIDO", Text.Clean, type text}}),
     TipoAlteradoFinal = Table.TransformColumnTypes(TextoPedidoLimpo, {{"DATA_AUTORIZACAO", type date}})
 in
     TipoAlteradoFinal
