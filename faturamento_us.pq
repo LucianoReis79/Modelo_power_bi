@@ -1,5 +1,5 @@
 let
-    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true, Query="SELECT *#(lf)FROM AFSESAB.VW_SIGAF_FATURAMENTO_US#(lf)WHERE DATA_PEDIDO >= TIMESTAMP '2018-01-01 00:00:00.000000'"]),
+    Fonte = Oracle.Database("10.17.1.30:1521/pdbprod01.ses.ba", [HierarchicalNavigation=true, Query="SELECT *#(lf)FROM AFSESAB.VW_SIGAF_FATURAMENTO_US_D1#(lf)WHERE DATA_AUTORIZACAO >= TIMESTAMP '2018-01-01 00:00:00.000000'"]),
     // Renomeia coluna
     ColunasRenomeadas = Table.RenameColumns(Fonte, {{"NUMERO_PEDIDO", "Pedido"}}),
     
