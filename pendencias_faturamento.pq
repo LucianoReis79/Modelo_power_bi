@@ -24,6 +24,9 @@ let
     #"Texto Aparado" = Table.TransformColumns(Table.TransformColumnTypes(#"Tipo Alterado2", {{"Data Distribuição", type text}}, "pt-BR"),{{"Medicamento", Text.Trim, type text}, {"Data Distribuição", Text.Trim, type text}, {"Programa de Saúde", Text.Trim, type text}, {"Unidade de Saúde", Text.Trim, type text}, {"Nº Distribuição", Text.Trim, type text}, {"Pedido", Text.Trim, type text}}),
     #"Tipo Alterado3" = Table.TransformColumnTypes(#"Texto Aparado",{{"Data Distribuição", type date}}),
     #"Colunas Renomeadas3" = Table.RenameColumns(#"Tipo Alterado3",{{"Unidade de Saúde", "Unidade"}, {"Data Distribuição", "Data"}, {"Qtd. Faturada", "Quantidade"}, {"Nº Distribuição", "NF"}, {"Pedido", "Pedido-SEI"}}),
-    #"Duplicatas Removidas" = Table.Distinct(#"Colunas Renomeadas3", {"Pedido-SEI", "NF", "Unidade", "Medicamento"})
+    #"Duplicatas Removidas" = Table.Distinct(#"Colunas Renomeadas3", {"Pedido-SEI", "NF", "Unidade", "Medicamento"}),
+    #"Consultas Mescladas" = Table.NestedJoin(#"Duplicatas Removidas", {"Pedido-SEI"}, Faturamento_US, {"NUMERO_PEDIDO"}, "Faturamento_US", JoinKind.LeftOuter),
+    #"Faturamento_US Expandido" = Table.ExpandTableColumn(#"Consultas Mescladas", "Faturamento_US", {"LISTA_MEDICAMENTO"}, {"LISTA_MEDICAMENTO"}),
+    #"Duplicatas Removidas1" = Table.Distinct(#"Faturamento_US Expandido", {"Pedido-SEI", "NF", "Unidade", "Medicamento", "Qtd. Pedida", "Data", "Programa de Saúde"})
 in
-    #"Duplicatas Removidas"
+    #"Duplicatas Removidas1"
