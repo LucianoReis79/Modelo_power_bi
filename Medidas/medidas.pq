@@ -27,3 +27,19 @@ Ressarcimento =
     RETURN
     FILTER(dados, [@custo_anual] > corte)
 #==================================================================================================================================
+# Retorna a cobertura de estoque em dias para os medicamentos com pendências de faturamento, considerando apenas aqueles com 
+# diferença negativa (pendências) e que possuem cobertura de estoque maior que zero.
+Pendências=
+FILTER(
+        ADDCOLUMNS(
+                SUMMARIZE(
+                        FILTER('pendencias de faturamento', 'pendencias de faturamento'[Diferença] < 0) ,
+                        '_Lista de medicamentos'[Medicamento], 'pendencias de faturamento'[NF], 'pendencias de faturamento'[LISTA_MEDICAMENTO], 'pendencias de faturamento'[Data]
+                ),
+                        "_Cobertura", [Cobertura Estoque (dias)],
+                        "_pendencias", 'pendencias de faturamento'[Soma de Diferença],
+                        "_fora FE", [Fora do FE]
+                        
+        ),
+        [_Cobertura] > 0
+)
