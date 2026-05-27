@@ -1,0 +1,13 @@
+let
+    Fonte = SharePoint.Tables("https://prodeboffice365.sharepoint.com/sites/EquipedeMonitoramentoCAJ", [Implementation="2.0", ViewMode="All"]),
+    #"Linhas Filtradas" = Table.SelectRows(Fonte, each ([Title] = "Controle Pedidos de Pendência (ATENDIMENTO)")),
+    #"Outras Colunas Removidas" = Table.SelectColumns(#"Linhas Filtradas",{"Items"}),
+    #"Items Expandido" = Table.ExpandTableColumn(#"Outras Colunas Removidas", "Items", {"Nº Pedido Referência", "Nº Pedido Pendência", "Responsável", "Unidade", "Medicamento", "Tipos de Pendência", "Status", "Observação"}, {"Nº Pedido Referência", "Nº Pedido Pendência", "Responsável", "Unidade", "Medicamento", "Tipos de Pendência", "Status", "Observação"}),
+    #"Tipo Alterado" = Table.TransformColumnTypes(#"Items Expandido",{{"Nº Pedido Referência", type text}, {"Nº Pedido Pendência", type text}, {"Responsável", type text}, {"Unidade", type text}, {"Medicamento", type text}, {"Tipos de Pendência", type text}, {"Status", type text}, {"Observação", type text}}),
+    #"Colunas Renomeadas" = Table.RenameColumns(#"Tipo Alterado",{{"Nº Pedido Referência", "Pedido Antigo"}, {"Nº Pedido Pendência", "Pedido Novo"}}),
+    #"Texto em Maiúscula" = Table.TransformColumns(#"Colunas Renomeadas",{{"Pedido Antigo", Text.Upper, type text}, {"Pedido Novo", Text.Upper, type text}, {"Responsável", Text.Upper, type text}, {"Unidade", Text.Upper, type text}, {"Medicamento", Text.Upper, type text}, {"Tipos de Pendência", Text.Upper, type text}, {"Status", Text.Upper, type text}, {"Observação", Text.Upper, type text}}),
+    #"Texto Aparado" = Table.TransformColumns(#"Texto em Maiúscula",{{"Pedido Antigo", Text.Trim, type text}, {"Pedido Novo", Text.Trim, type text}, {"Responsável", Text.Trim, type text}, {"Unidade", Text.Trim, type text}, {"Medicamento", Text.Trim, type text}, {"Tipos de Pendência", Text.Trim, type text}, {"Status", Text.Trim, type text}, {"Observação", Text.Trim, type text}}),
+    #"Texto Limpo" = Table.TransformColumns(#"Texto Aparado",{{"Pedido Antigo", Text.Clean, type text}, {"Pedido Novo", Text.Clean, type text}, {"Responsável", Text.Clean, type text}, {"Unidade", Text.Clean, type text}, {"Medicamento", Text.Clean, type text}, {"Tipos de Pendência", Text.Clean, type text}, {"Status", Text.Clean, type text}, {"Observação", Text.Clean, type text}}),
+    #"Linhas Filtradas1" = Table.SelectRows(#"Texto Limpo", each [Status] = "ATUALIZADO" or [Status] = "FATURADO" or [Status] = "")
+in
+    #"Linhas Filtradas1"
