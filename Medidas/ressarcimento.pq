@@ -92,3 +92,15 @@ CALCULATE(
     Ressarcimentos_AJ[Status] = "Enviado",
     ALL(_Calendario)
 )
+
+#=====================================================================================
+Custo anual = 
+CALCULATE(
+    SUMX(
+        Pacientes,
+        Pacientes[Quantidade Autorizada]*Pacientes[Período de tratamento (em meses)]*[Custo unitário]
+    ),
+    Pacientes[Status] <>"Depósito Judicial"
+)+0
+
+
