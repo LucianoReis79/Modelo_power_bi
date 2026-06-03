@@ -4,10 +4,11 @@ Ressarcimento =
 VAR dados =
 ADDCOLUMNS(
     SUMMARIZE(
-        FILTER(Pacientes, not ISBLANK(Pacientes[Medicamento]) && RELATED('_Lista de medicamentos'[Classe/Programa/Tema 1234]) <> "Sem registro ANVISA"),
+        FILTER(Pacientes, not ISBLANK(Pacientes[Medicamento]) && RELATED('_Lista de medicamentos'[Classe/Programa/Tema 1234]) <> "Sem registro ANVISA"),        
         Interessados[Interessado], '_Lista de medicamentos'[Medicamento],
         '_Lista de medicamentos'[Classe/Programa/Tema 1234],
         Pacientes[SEI]
+        
         
     ),
     "@custo_unitário", [Custo unitário],
@@ -15,7 +16,7 @@ ADDCOLUMNS(
     "@custo_anual",[Custo anual],
     "status", CALCULATE(SELECTEDVALUE(Pacientes[Status])),
     "@Valor solicitado", CALCULATE(SUM(Ressarcimentos_AJ[Valor])),
-    
+    "@status_ressarcimento", [Status_ressarcimento],
     "@valor_ressarcimento", 
     VAR custo_anual = [Custo anual]
     VAR programa = '_Lista de medicamentos'[Classe/Programa/Tema 1234]
