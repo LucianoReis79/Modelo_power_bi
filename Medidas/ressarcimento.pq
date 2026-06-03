@@ -26,19 +26,6 @@ CALCULATE(
     )
 )
 #=====================================================================================
-Ressarcimento Estimado sobre Distribuições Históricas = 
-CALCULATE(
-    [Valor Total Distribuido]*0.8,
-    FILTER(
-        ALL(_Calendario),
-        _Calendario[Ano] >= 2018 && _Calendario[Ano]<=2025
-    ),
-    FILTER(
-        ALL('_Lista de medicamentos'),
-        '_Lista de medicamentos'[Classe/Programa/Tema 1234] <> "Sem registro ANVISA"
-    )
-)
-#=====================================================================================
 Fator Ressarcimento = 
 DIVIDE(
     [Ressarcimento Estimado sobre Distribuições Históricas],
@@ -46,6 +33,27 @@ DIVIDE(
     ""
 )
 #=====================================================================================
+Média Mensal Últimos 12 Meses = 
+VAR DataFinal =
+    CALCULATE(
+        MAX('Distribuição'[Data]),
+        ALL('Distribuição')
+    )
+RETURN
+DIVIDE(
+    CALCULATE(
+        [Valor Total Distribuido],
+        DATESINPERIOD(
+            _Calendario[Data],
+            DataFinal,
+            -12,
+            MONTH
+        )
+    ),
+    12
+)
+#=====================================================================================
+
 Ressarcido Projetado Mensal = 
 IF(
     MAX(_Calendario[Data]) > TODAY(),
