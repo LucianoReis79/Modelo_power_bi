@@ -155,6 +155,9 @@ let
     #"Valor Substituído22" = Table.ReplaceValue(#"Valor Substituído21","SI","",Replacer.ReplaceText,{"SEI"}),
     #"Valor Substituído23" = Table.ReplaceValue(#"Valor Substituído22","SI ","",Replacer.ReplaceText,{"SEI"}),
     #"Valor Substituído24" = Table.ReplaceValue(#"Valor Substituído23","SE ","",Replacer.ReplaceText,{"SEI"}),
-    #"Valor Substituído25" = Table.ReplaceValue(#"Valor Substituído24","2 019.8699.2019.0096364-14","019.8699.2019.0096364-14",Replacer.ReplaceText,{"SEI"})
+    #"Valor Substituído25" = Table.ReplaceValue(#"Valor Substituído24","2 019.8699.2019.0096364-14","019.8699.2019.0096364-14",Replacer.ReplaceText,{"SEI"}),
+    #"Coluna Duplicada1" = Table.DuplicateColumn(#"Valor Substituído25", "SEI", "SEI Limpo"),
+    #"Valor Substituído26" = Table.ReplaceValue(#"Coluna Duplicada1",".","",Replacer.ReplaceText,{"SEI Limpo"}),
+    #"Valor Substituído27" = Table.ReplaceValue(#"Valor Substituído26","-","",Replacer.ReplaceText,{"SEI Limpo"})
 in
-    #"Valor Substituído25"
+    #"Valor Substituído27"
