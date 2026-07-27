@@ -17,16 +17,18 @@ let
     #"Personalização Adicionada" = Table.AddColumn(#"Linhas Classificadas", "Personalizar", each Number.Abs([#"diferenca"])+[#"qtd_faturada"]),
     #"Colunas Renomeadas1" = Table.RenameColumns(#"Personalização Adicionada",{{"Personalizar", "Demanda real"}}),
     #"Tipo Alterado1" = Table.TransformColumnTypes(#"Colunas Renomeadas1",{{"Demanda real", Int64.Type}}),
-    #"Colunas Renomeadas2" = Table.RenameColumns(#"Tipo Alterado1",{{"numero_distribuicao", "Nº Distribuição"}, {"unidade_saude", "Unidade de Saúde"}, {"programa_saude", "Programa de Saúde"}, {"data_distribuicao", "Data Distribuição"}, {"qtd_pedida", "Qtd. Pedida"}, {"qtd_autorizada", "Qtd. Autorizada"}, {"qtd_faturada", "Qtd. Faturada"}, {"diferenca", "Diferença"}, {"numero_pedido", "Pedido"}}),
+    #"Colunas Renomeadas2" = Table.RenameColumns(#"Tipo Alterado1",{{"numero_distribuicao", "Nº Distribuição"}, {"unidade_saude", "Unidade de Saúde"}, {"programa_saude", "PROGRAMA"}, {"data_distribuicao", "Data Distribuição"}, {"qtd_pedida", "Qtd. Pedida"}, {"qtd_autorizada", "Qtd. Autorizada"}, {"qtd_faturada", "Qtd. Faturada"}, {"diferenca", "Diferença"}, {"numero_pedido", "Pedido"}}),
     #"Tipo Alterado" = Table.TransformColumnTypes(#"Colunas Renomeadas2",{{"Pedido", type text}}),
-    #"Texto Limpo" = Table.TransformColumns(#"Tipo Alterado",{{"Medicamento", Text.Clean, type text}, {"Programa de Saúde", Text.Clean, type text}, {"Unidade de Saúde", Text.Clean, type text}, {"Nº Distribuição", Text.Clean, type text}, {"Pedido", Text.Clean, type text}}),
+    #"Texto Limpo" = Table.TransformColumns(#"Tipo Alterado",{{"Medicamento", Text.Clean, type text}, {"PROGRAMA", Text.Clean, type text}, {"Unidade de Saúde", Text.Clean, type text}, {"Nº Distribuição", Text.Clean, type text}, {"Pedido", Text.Clean, type text}}),
     #"Tipo Alterado2" = Table.TransformColumnTypes(#"Texto Limpo",{{"Data Distribuição", type date}}),
-    #"Texto Aparado" = Table.TransformColumns(Table.TransformColumnTypes(#"Tipo Alterado2", {{"Data Distribuição", type text}}, "pt-BR"),{{"Medicamento", Text.Trim, type text}, {"Data Distribuição", Text.Trim, type text}, {"Programa de Saúde", Text.Trim, type text}, {"Unidade de Saúde", Text.Trim, type text}, {"Nº Distribuição", Text.Trim, type text}, {"Pedido", Text.Trim, type text}}),
+    #"Texto Aparado" = Table.TransformColumns(Table.TransformColumnTypes(#"Tipo Alterado2", {{"Data Distribuição", type text}}, "pt-BR"),{{"Medicamento", Text.Trim, type text}, {"Data Distribuição", Text.Trim, type text}, {"PROGRAMA", Text.Trim, type text}, {"Unidade de Saúde", Text.Trim, type text}, {"Nº Distribuição", Text.Trim, type text}, {"Pedido", Text.Trim, type text}}),
     #"Tipo Alterado3" = Table.TransformColumnTypes(#"Texto Aparado",{{"Data Distribuição", type date}}),
     #"Colunas Renomeadas3" = Table.RenameColumns(#"Tipo Alterado3",{{"Unidade de Saúde", "Unidade"}, {"Data Distribuição", "Data"}, {"Qtd. Faturada", "Quantidade"}, {"Nº Distribuição", "NF"}, {"Pedido", "Pedido-SEI"}}),
     #"Duplicatas Removidas" = Table.Distinct(#"Colunas Renomeadas3", {"Pedido-SEI", "NF", "Unidade", "Medicamento"}),
     #"Consultas Mescladas" = Table.NestedJoin(#"Duplicatas Removidas", {"Pedido-SEI"}, Faturamento_US, {"NUMERO_PEDIDO"}, "Faturamento_US", JoinKind.LeftOuter),
     #"Faturamento_US Expandido" = Table.ExpandTableColumn(#"Consultas Mescladas", "Faturamento_US", {"LISTA_MEDICAMENTO"}, {"LISTA_MEDICAMENTO"}),
-    #"Duplicatas Removidas1" = Table.Distinct(#"Faturamento_US Expandido", {"Pedido-SEI", "NF", "Unidade", "Medicamento", "Qtd. Pedida", "Data", "Programa de Saúde"})
+    #"Duplicatas Removidas1" = Table.Distinct(#"Faturamento_US Expandido", {"Pedido-SEI", "NF", "Unidade", "Medicamento", "Qtd. Pedida", "Data", "PROGRAMA"}),
+    #"Valor Substituído" = Table.ReplaceValue(#"Duplicatas Removidas1","CAJ - ADMINISTRATIVO","ADM",Replacer.ReplaceText,{"PROGRAMA"}),
+    #"Valor Substituído1" = Table.ReplaceValue(#"Valor Substituído","AÇÃO JUDICIAL TERMOLÁBIL","AJ",Replacer.ReplaceText,{"PROGRAMA"})
 in
-    #"Duplicatas Removidas1"
+    #"Valor Substituído1"

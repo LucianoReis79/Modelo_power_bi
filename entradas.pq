@@ -31,8 +31,7 @@ let
     #"Colunas Renomeadas1" = Table.RenameColumns(#"Colunas Removidas5",{{"Personalizar", "Tipo de entrada"}}),
     #"Linhas Filtradas6" = Table.SelectRows(#"Colunas Renomeadas1", each ([NOME_PROGRAMA] = "AÇÃO JUDICIAL" or [NOME_PROGRAMA] = "AÇÃO JUDICIAL TERMOLÁBIL" or [NOME_PROGRAMA] = "CAJ - ADMINISTRATIVO")),
     #"Linhas Filtradas3" = Table.SelectRows(#"Linhas Filtradas6", each true),
-    #"Colunas Removidas3" = Table.RemoveColumns(#"Linhas Filtradas3",{"NOME_PROGRAMA"}),
-    #"Tipo Alterado" = Table.TransformColumnTypes(#"Colunas Removidas3",{{"LOTE", type text}}),
+    #"Tipo Alterado" = Table.TransformColumnTypes(#"Linhas Filtradas3",{{"LOTE", type text}}),
     #"Texto Aparado" = Table.TransformColumns(#"Tipo Alterado",{{"LOTE", Text.Trim, type text}}),
     #"Texto Limpo" = Table.TransformColumns(#"Texto Aparado",{{"LOTE", Text.Clean, type text}}),
     #"Colunas Removidas" = Table.RemoveColumns(#"Texto Limpo",{"DATA_ESTORNO", "STATUS_ENTRADA"}),
@@ -40,6 +39,10 @@ let
     #"Colunas Renomeadas2" = Table.RenameColumns(#"Texto em Maiúscula1",{{"UNIDADE", "Unidade"}, {"DATA_CADASTRO", "Data Cadastro"}, {"DATA_RECEBIMENTO", "Data Recebimento"}, {"NUMERO_AUTORIZACAO_FORNECIMENTO", "Nº Autorização de Fornecimento"}, {"NUMERO_NOTA_FISCAL.1", "Nº Nota Fiscal .1"}, {"MEDICAMENTO", "Medicamento"}, {"LOTE", "Lote"}, {"QUANTIDADE", "Quantidade"}, {"VALOR_UNITARIO", "Valor Unitário"}}),
     #"Linhas Filtradas2" = Table.SelectRows(#"Colunas Renomeadas2", each not Text.StartsWith([NUMERO_ENTRADA], "043046325061394")),
     #"Colunas Renomeadas3" = Table.RenameColumns(#"Linhas Filtradas2",{{"Nº Nota Fiscal .1", "NF"}, {"Data Recebimento", "Data"}, {"Tipo de entrada", "Tipo"}, {"Valor Unitário", "Valor unitário"}}),
-    #"Tipo Alterado1" = Table.TransformColumnTypes(#"Colunas Renomeadas3",{{"Tipo", type text}})
+    #"Tipo Alterado1" = Table.TransformColumnTypes(#"Colunas Renomeadas3",{{"Tipo", type text}}),
+    #"Colunas Renomeadas4" = Table.RenameColumns(#"Tipo Alterado1",{{"NOME_PROGRAMA", "PROGRAMA"}}),
+    #"Valor Substituído4" = Table.ReplaceValue(#"Colunas Renomeadas4","CAJ - ADMINISTRATIVO","ADM",Replacer.ReplaceText,{"PROGRAMA"}),
+    #"Valor Substituído5" = Table.ReplaceValue(#"Valor Substituído4","AÇÃO JUDICIAL","AJ",Replacer.ReplaceText,{"PROGRAMA"}),
+    #"Valor Substituído6" = Table.ReplaceValue(#"Valor Substituído5","AÇÃO JUDICIAL TERMOLÁBIL","AJ",Replacer.ReplaceText,{"PROGRAMA"})
 in
-    #"Tipo Alterado1"
+    #"Valor Substituído6"

@@ -36,7 +36,7 @@ let
 
     // Adicionar coluna de total consumo e agrupar dados 
     #"Personalização Adicionada" = Table.AddColumn(#"Linhas Classificadas2", "total consumo", each [#"qtd_faturada"]+[dif Valor Absoluto]), 
-    #"Linhas Agrupadas" = Table.Group(#"Personalização Adicionada", {"Medicamento", "_Calendario.Ano Mês Class"}, {{"Contagem", each List.Sum([total consumo]), type number}}),      
+    #"Linhas Agrupadas" = Table.Group(#"Personalização Adicionada", {"Medicamento", "_Calendario.Ano Mês Class", "programa_saude"}, {{"Contagem", each List.Sum([total consumo]), type number}}),      
 
     // Classificar e renomear colunas 
     #"Linhas Classificadas" = Table.Sort(#"Linhas Agrupadas",{{"_Calendario.Ano Mês Class", Order.Descending}}), 
@@ -44,7 +44,10 @@ let
     #"Tipo Alterado1" = Table.TransformColumnTypes(#"Colunas Renomeadas2",{{"faturado", Int64.Type}}), 
     #"Texto Limpo" = Table.TransformColumns(#"Tipo Alterado1",{{"Medicamento", Text.Clean, type text}}), 
     #"Texto Aparado" = Table.TransformColumns(#"Texto Limpo",{{"Medicamento", Text.Trim, type text}}), 
-    #"Linhas Classificadas1" = Table.Sort(#"Texto Aparado",{{"Medicamento", Order.Ascending}}) 
-in 
-
-    #"Linhas Classificadas1"
+    #"Linhas Classificadas1" = Table.Sort(#"Texto Aparado",{{"Medicamento", Order.Ascending}}),
+    #"Colunas Renomeadas3" = Table.RenameColumns(#"Linhas Classificadas1",{{"programa_saude", "PROGRAMA"}}),
+    #"Valor Substituído" = Table.ReplaceValue(#"Colunas Renomeadas3","AÇÃO JUDICIAL TERMOLÁBIL","AJ",Replacer.ReplaceText,{"PROGRAMA"}),
+    #"Valor Substituído1" = Table.ReplaceValue(#"Valor Substituído","AÇÃO JUDICIAL","AJ",Replacer.ReplaceText,{"PROGRAMA"}),
+    #"Valor Substituído2" = Table.ReplaceValue(#"Valor Substituído1","CAJ - ADMINISTRATIVO","ADM",Replacer.ReplaceText,{"PROGRAMA"})
+in
+    #"Valor Substituído2"
