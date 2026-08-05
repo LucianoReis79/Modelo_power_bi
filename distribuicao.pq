@@ -11,9 +11,10 @@ let
     #"Personalização Adicionada" = Table.AddColumn(#"Colunas Removidas", "Tipo", each "Distibuição"),
     #"Tipo Alterado" = Table.TransformColumnTypes(#"Personalização Adicionada",{{"Tipo", type text}}),
     #"Consultas Mescladas" = Table.NestedJoin(#"Tipo Alterado", {"NUMERO_DISTRIBUICAO"}, #"pendencias de faturamento", {"NF"}, "pendencias de faturamento", JoinKind.LeftOuter),
-    #"pendencias de faturamento Expandido" = Table.ExpandTableColumn(#"Consultas Mescladas", "pendencias de faturamento", {"Programa de Saúde"}, {"Programa de Saúde"}),
-    #"Linhas Filtradas" = Table.SelectRows(#"pendencias de faturamento Expandido", each ([Programa de Saúde] <> null)),
+    #"pendencias de faturamento Expandido" = Table.ExpandTableColumn(#"Consultas Mescladas", "pendencias de faturamento", {"PROGRAMA"}, {"PROGRAMA.1"}),
+    #"Linhas Filtradas" = Table.SelectRows(#"pendencias de faturamento Expandido", each ([PROGRAMA] <> null)),
     #"Colunas Renomeadas" = Table.RenameColumns(#"Linhas Filtradas",{{"DATA_DISTRIBUICAO", "Data"}, {"UNIDADE_DESTINO", "Unidade"}}),
-    #"Duplicatas Removidas" = Table.Distinct(#"Colunas Renomeadas", {"NUMERO_DISTRIBUICAO", "NUMERO_PEDIDO", "Unidade", "Data", "QUANTIDADE", "MEDICAMENTO"})
+    #"Duplicatas Removidas" = Table.Distinct(#"Colunas Renomeadas", {"NUMERO_DISTRIBUICAO", "NUMERO_PEDIDO", "Unidade", "Data", "QUANTIDADE", "MEDICAMENTO"}),
+    #"Linhas Filtradas1" = Table.SelectRows(#"Duplicatas Removidas", each ([PROGRAMA.1] = "AJ"))
 in
-    #"Duplicatas Removidas"
+    #"Linhas Filtradas1"
